@@ -26,7 +26,6 @@ impl SimpleQueryHandler for PGPProcessor {
             .output()
             .expect("failed to execute process");
 
-        println!("status: {}", output.status);
         io::stdout().write_all(&output.stdout).unwrap();
         io::stderr().write_all(&output.stderr).unwrap();
         Ok(vec![Response::Execution(Tag::new_for_execution(
