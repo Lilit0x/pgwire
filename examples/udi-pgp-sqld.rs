@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+use std::process::Command;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -19,6 +21,14 @@ impl SimpleQueryHandler for PGPProcessor {
         C: ClientInfo + Unpin + Send + Sync,
     {
         println!("{:?}", query);
+        let output = Command::new("osqueryi")
+            .arg("SELECT name, path, pid FROM processes;")
+            .output()
+            .expect("failed to execute process");
+
+        println!("status: {}", output.status);
+        io::stdout().write_all(&output.stdout).unwrap();
+        io::stderr().write_all(&output.stderr).unwrap();
         Ok(vec![Response::Execution(Tag::new_for_execution(
             "OK",
             Some(1),
@@ -27,7 +37,7 @@ impl SimpleQueryHandler for PGPProcessor {
 }
 #[tokio::main]
 pub async fn main() {
-        let processor = Arc::new(StatelessMakeHandler::new(Arc::new(PGPProcessor)));
+    let processor = Arc::new(StatelessMakeHandler::new(Arc::new(PGPProcessor)));
     // We have not implemented extended query in this server, use placeholder instead
     let placeholder = Arc::new(StatelessMakeHandler::new(Arc::new(
         PlaceholderExtendedQueryHandler,
