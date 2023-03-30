@@ -27,6 +27,7 @@ impl SimpleQueryHandler for PGPProcessor {
             .expect("failed to execute osquery query");
 
         let mut osquery_res = String::new();
+        
         osquery_res.push_str(match str::from_utf8(&output.stdout) {
             Ok(val) => val,
             Err(_) => panic!("got non UTF-8 data from output"),
